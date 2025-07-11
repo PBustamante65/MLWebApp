@@ -5,7 +5,7 @@ import joblib
 st.set_page_config(page_title="MLWebApp", layout="wide")
 
 pipeline_path = "artifacts/preprocessor/preprocessor.pkl"
-model_path = "artifacts/model/SVM.pkl"
+model_path = "artifacts/model/svm.pkl"
 encoder_path = "artifacts/preprocessor/labelencoder.pkl"
 
 with open(pipeline_path, "rb") as file1:
@@ -79,6 +79,7 @@ st.header("Ingreso de los datos")
 # 75%      1615.250000     1.0000     2.200000     1.000000     7.000000     1.000000    48.000000     0.800000  ...  3064.500000    16.000000     9.000000    16.000000     1.000000      1.000000     1.000000     2.250
 # max      1998.000000     1.0000     3.000000     1.000000    19.000000     1.000000    64.000000     1.000000  ...  3998.000000    19.000000    18.000000
 
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -111,3 +112,68 @@ with col3:
     talk_time = st.slider(
         "Duracion de la bateria bajo uso constante (Hrs)", min_value=2, max_value=20
     )
+
+
+st.divider()
+col4, col5, col6 = st.columns(3)
+
+with col4:
+
+    blue = st.selectbox("Tiene Bluetooth?", [0, 1])
+    three_g = st.selectbox("Tiene 3G?", [0, 1])
+
+with col5:
+
+    dual_sim = st.selectbox("Tiene Dual Sim?", [0, 1])
+    touch_screen = st.selectbox("Tiene pantalla tactil?", [0, 1])
+
+with col6:
+
+    four_g = st.selectbox("Tiene 4G?", [0, 1])
+    wifi = st.selectbox("Tiene WiFi?", [0, 1])
+
+st.divider()
+
+
+if st.button("Predict"):
+
+    input_data = pd.DataFrame(
+        {
+            "battery_power": [battery_power],
+            "blue": [blue],
+            "clock_speed": [clock_speed],
+            "dual_sim": [dual_sim],
+            "fc": [fc],
+            "four_g": [four_g],
+            "int_memory": [int_memory],
+            "m_dep": [m_dep],
+            "mobile_wt": [mobile_wt],
+            "n_cores": [n_cores],
+            "pc": [pc],
+            "px_height": [px_height],
+            "px_width": [px_width],
+            "ram": [ram],
+            "sc_h": [sc_h],
+            "sc_w": [sc_w],
+            "talk_time": [talk_time],
+            "three_g": [three_g],
+            "touch_screen": [touch_screen],
+            "wifi": [wifi],
+        }
+    )
+
+    st.dataframe(input_data)
+
+    pipelined_data = pipeline.transform(input_data)
+
+    prediction = model.predict(pipelined_data)
+
+    # st.write(prediction)
+    if prediction[0] == 0:
+        st.success("El precio del dispositivo es bajo")
+    elif prediction[0] == 1:
+        st.success("El precio del dispositivo es medio")
+    elif prediction[0] == 2:
+        st.success("El precio del dispositivo es alto")
+    elif prediction[0] == 3:
+        st.success("El precio del dispositivo es muy alto")
